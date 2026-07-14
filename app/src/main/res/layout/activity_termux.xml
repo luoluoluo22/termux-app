@@ -76,6 +76,18 @@
                         app:tint="?attr/termuxActivityDrawerImageTint" />
                 </LinearLayout>
 
+                <TextView
+                    android:id="@+id/sessions_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="4dp"
+                    android:text="活动会话"
+                    android:textSize="12sp"
+                    android:textColor="?attr/termuxActivityDrawerImageTint"
+                    android:textStyle="bold" />
+
                 <ListView
                     android:id="@+id/terminal_sessions_list"
                     android:layout_width="match_parent"
@@ -84,6 +96,34 @@
                     android:layout_weight="1"
                     android:choiceMode="singleChoice"
                     android:longClickable="true" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#20FFFFFF"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+                <TextView
+                    android:id="@+id/ai_history_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="4dp"
+                    android:text="AI 历史话题"
+                    android:textSize="12sp"
+                    android:textColor="?attr/termuxActivityDrawerImageTint"
+                    android:textStyle="bold" />
+
+                <ListView
+                    android:id="@+id/ai_chat_history_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1.2"
+                    android:choiceMode="singleChoice"
+                    android:divider="@android:color/transparent"
+                    android:dividerHeight="0dp" />
 
                 <LinearLayout
                     style="?android:attr/buttonBarStyle"
