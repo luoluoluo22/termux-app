@@ -49,7 +49,19 @@ android {
         if (appVersionName) versionName = appVersionName
         validateVersionName(versionName)
 
+        // Read local.properties
+        Properties localProps = new Properties()
+        if (project.rootProject.file('local.properties').exists()) {
+            localProps.load(project.rootProject.file('local.properties').newDataInputStream())
+        }
+        String githubToken = localProps.getProperty('github.token', '')
+        String githubUsername = localProps.getProperty('github.username', '')
+        String githubEmail = localProps.getProperty('github.email', '')
+
         buildConfigField "String", "TERMUX_PACKAGE_VARIANT", "\"" + project.ext.packageVariant + "\"" // Used by TermuxApplication class
+        buildConfigField "String", "GITHUB_TOKEN", "\"${githubToken}\""
+        buildConfigField "String", "GITHUB_USERNAME", "\"${githubUsername}\""
+        buildConfigField "String", "GITHUB_EMAIL", "\"${githubEmail}\""
 
         manifestPlaceholders.TERMUX_PACKAGE_NAME = "com.termux"
         manifestPlaceholders.TERMUX_APP_NAME = "Termux"

@@ -644,6 +644,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         TermuxUtils.sendTermuxOpenedBroadcast(this);
 
+        writeGitHubConfig();
+
     }
 
 
@@ -2692,7 +2694,51 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
     }
 
+    private void writeGitHubConfig() {
+        new Thread(() -> {
+            try {
+                java.io.File rootfsRoot = new java.io.File("/data/data/com.termux/files/usr/var/lib/proot-distro/containers/debian/rootfs/root");
+                if (!rootfsRoot.exists()) {
+                    rootfsRoot = new java.io.File("/data/user/0/com.termux/files/usr/var/lib/proot-distro/containers/debian/rootfs/root");
+                }
+                if (rootfsRoot.exists() && rootfsRoot.isDirectory()) {
+                    // 1. Write .bashrc
+                    java.io.File bashrc = new java.io.File(rootfsRoot, ".bashrc");
+                    StringBuilder bashrcContent = new StringBuilder();
+                    if (bashrc.exists()) {
+                        byte[] bytes = java.nio.file.Files.readAllBytes(bashrc.toPath());
+                        String fileContent = new String(bytes, java.nio.charset.StandardCharsets.UTF_8);
+                        for (String line : fileContent.split("\n")) {
+                            if (!line.contains("GITHUB_TOKEN") && !line.contains("GITHUB_USERNAME") && !line.contains("GITHUB_EMAIL")) {
+                                bashrcContent.append(line).append("\n");
+                            }
+                        }
+                    }
+                    if (com.termux.BuildConfig.GITHUB_TOKEN != null && !com.termux.BuildConfig.GITHUB_TOKEN.isEmpty()) {
+                        bashrcContent.append("export GITHUB_TOKEN=\"").append(com.termux.BuildConfig.GITHUB_TOKEN).append("\"\n");
+                    }
+                    if (com.termux.BuildConfig.GITHUB_USERNAME != null && !com.termux.BuildConfig.GITHUB_USERNAME.isEmpty()) {
+                        bashrcContent.append("export GITHUB_USERNAME=\"").append(com.termux.BuildConfig.GITHUB_USERNAME).append("\"\n");
+                    }
+                    if (com.termux.BuildConfig.GITHUB_EMAIL != null && !com.termux.BuildConfig.GITHUB_EMAIL.isEmpty()) {
+                        bashrcContent.append("export GITHUB_EMAIL=\"").append(com.termux.BuildConfig.GITHUB_EMAIL).append("\"\n");
+                    }
+                    java.nio.file.Files.write(bashrc.toPath(), bashrcContent.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
 
+                    // 2. Write .gitconfig
+                    if (com.termux.BuildConfig.GITHUB_USERNAME != null && !com.termux.BuildConfig.GITHUB_USERNAME.isEmpty()) {
+                        java.io.File gitconfig = new java.io.File(rootfsRoot, ".gitconfig");
+                        String gitconfigContent = "[user]\n    name = " + com.termux.BuildConfig.GITHUB_USERNAME + "\n    email = " + com.termux.BuildConfig.GITHUB_EMAIL + "\n";
+                        java.nio.file.Files.write(gitconfig.toPath(), gitconfigContent.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    }
+                    
+                    Logger.logDebug(LOG_TAG, "GitHub configuration successfully written.");
+                }
+            } catch (Exception e) {
+                Logger.logStackTraceWithMessage(LOG_TAG, "Failed to write GitHub configuration", e);
+            }
+        }).start();
+    }
 
 }
 
