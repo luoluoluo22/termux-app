@@ -2266,6 +2266,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
             requestStoragePermission(true);
 
+        } else if (requestCode == 1001 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+
+            handleSelectedFile(data.getData());
+
         }
 
     }
@@ -2692,6 +2696,69 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         return intent;
 
+    }
+
+    public void showFilePicker() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        try {
+            startActivityForResult(Intent.createChooser(intent, "选择要发送给 AI 的文件"), 1001);
+        } catch (android.content.ActivityNotFoundException ex) {
+            Logger.showToast(this, "未找到文件管理器", true);
+        }
+    }
+
+    private void handleSelectedFile(android.net.Uri uri) {
+        new Thread(() -> {
+            try {
+                String fileName = "upload_file";
+                try (android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                    if (cursor != null && cursor.moveToFirst()) {
+                        int index = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                        if (index != -1) {
+                            fileName = cursor.getString(index);
+                        }
+                    }
+                }
+                
+                // Sanitize filename
+                fileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+
+                java.io.File homeDir = new java.io.File("/data/data/com.termux/files/home");
+                if (!homeDir.exists()) {
+                    homeDir = new java.io.File("/data/user/0/com.termux/files/home");
+                }
+                if (!homeDir.exists()) {
+                    homeDir.mkdirs();
+                }
+
+                java.io.File destFile = new java.io.File(homeDir, fileName);
+                try (java.io.InputStream in = getContentResolver().openInputStream(uri);
+                     java.io.FileOutputStream out = new java.io.FileOutputStream(destFile)) {
+                    byte[] buffer = new byte[8192];
+                    int read;
+                    while ((read = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, read);
+                    }
+                }
+
+                final String insertedPath = "~/" + fileName;
+                runOnUiThread(() -> {
+                    TerminalView terminalView = getTerminalView();
+                    if (terminalView != null) {
+                        com.termux.terminal.TerminalSession session = terminalView.getCurrentSession();
+                        if (session != null) {
+                            session.write(insertedPath);
+                        }
+                    }
+                    Logger.showToast(this, "已上传到 " + insertedPath, false);
+                });
+            } catch (Exception e) {
+                Logger.logStackTraceWithMessage(LOG_TAG, "Failed to copy selected file", e);
+                runOnUiThread(() -> Logger.showToast(this, "文件上传失败: " + e.getMessage(), true));
+            }
+        }).start();
     }
 
     private void writeGitHubConfig() {
