@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_new_session">新建会话</string>
+    <string name="action_new_session_failsafe">安全模式</string>
+    <string name="action_toggle_soft_keyboard">切换键盘</string>
+    <string name="action_open_settings">设置</string>
+</resources>

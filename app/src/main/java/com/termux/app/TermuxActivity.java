@@ -490,6 +490,20 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         mTerminalView = findViewById(R.id.terminal_view);
         mTerminalView.setTerminalViewClient(mTermuxTerminalViewClient);
 
+        com.google.android.material.floatingactionbutton.FloatingActionButton drawerToggleButton = findViewById(R.id.drawer_toggle_button);
+        if (drawerToggleButton != null) {
+            drawerToggleButton.setOnClickListener(v -> {
+                DrawerLayout drawerLayout = getDrawer();
+                if (drawerLayout != null) {
+                    if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                        drawerLayout.closeDrawer(Gravity.LEFT);
+                    } else {
+                        drawerLayout.openDrawer(Gravity.LEFT);
+                    }
+                }
+            });
+        }
+
         if (mTermuxTerminalViewClient != null)
             mTermuxTerminalViewClient.onCreate();
 

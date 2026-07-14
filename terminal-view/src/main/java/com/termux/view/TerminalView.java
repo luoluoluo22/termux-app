@@ -320,14 +320,9 @@ public final class TerminalView extends View {
                 // https://cs.android.com/android/platform/superproject/+/android-11.0.0_r40:packages/inputmethods/LatinIME/java/src/com/android/inputmethod/latin/InputAttributes.java;l=79
                 outAttrs.inputType = InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
             } else {
-                // Using InputType.NULL is the most correct input type and avoids issues with other hacks.
-                //
-                // Previous keyboard issues:
-                // https://github.com/termux/termux-packages/issues/25
-                // https://github.com/termux/termux-app/issues/87.
-                // https://github.com/termux/termux-app/issues/126.
-                // https://github.com/termux/termux-app/issues/137 (japanese chars and TYPE_NULL).
-                outAttrs.inputType = InputType.TYPE_NULL;
+                // Default to text class with suggestions disabled to support Chinese Pinyin composition
+                // on physical keyboards, virtual keyboards, and Scrcpy key injection.
+                outAttrs.inputType = InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE;
             }
         } else {
             // Corresponds to android:inputType="text"
@@ -1398,13 +1393,7 @@ public final class TerminalView extends View {
         if (mTextSelectionCursorController != null) mTextSelectionCursorController.unsetStoredSelectedText();
     }
 
-    private ActionMode getTextSelectionActionMode() {
-        if (mTextSelectionCursorController != null) {
-            return mTextSelectionCursorController.getActionMode();
-        } else {
-            return null;
-        }
-    }
+
 
     public void startTextSelectionMode(MotionEvent event) {
         if (!requestFocus()) {
@@ -1455,46 +1444,8 @@ public final class TerminalView extends View {
 
 
 
-    /**
-     * Define functions required for long hold toolbar.
-     */
-    private final Runnable mShowFloatingToolbar = new Runnable() {
-        @RequiresApi(api = Build.VERSION_CODES.M)
-        @Override
-        public void run() {
-            if (getTextSelectionActionMode() != null) {
-                getTextSelectionActionMode().hide(0);  // hide off.
-            }
-        }
-    };
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    private void showFloatingToolbar() {
-        if (getTextSelectionActionMode() != null) {
-            int delay = ViewConfiguration.getDoubleTapTimeout();
-            postDelayed(mShowFloatingToolbar, delay);
-        }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.M)
-    void hideFloatingToolbar() {
-        if (getTextSelectionActionMode() != null) {
-            removeCallbacks(mShowFloatingToolbar);
-            getTextSelectionActionMode().hide(-1);
-        }
-    }
-
     public void updateFloatingToolbarVisibility(MotionEvent event) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getTextSelectionActionMode() != null) {
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_MOVE:
-                    hideFloatingToolbar();
-                    break;
-                case MotionEvent.ACTION_UP:  // fall through
-                case MotionEvent.ACTION_CANCEL:
-                    showFloatingToolbar();
-            }
-        }
+        // No-op for custom popup
     }
 
 }
