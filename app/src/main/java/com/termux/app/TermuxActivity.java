@@ -518,6 +518,18 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         setContentView(R.layout.activity_termux);
 
+        TextView sessionsHeader = findViewById(R.id.sessions_header);
+        if (sessionsHeader != null) {
+            SpannableString ss = new SpannableString("●  活动对话");
+            ss.setSpan(new android.text.style.ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sessionsHeader.setText(ss);
+        }
+
+        TextView aiHistoryHeader = findViewById(R.id.ai_history_header);
+        if (aiHistoryHeader != null) {
+            aiHistoryHeader.setText("🕒  最近对话");
+        }
+
 
 
         // Load termux shared preferences
@@ -1240,11 +1252,9 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
 
 
-            String prefix = "🕒 ";
-
             String topic = item.topic;
 
-            SpannableString styled = new SpannableString(prefix + topic);
+            SpannableString styled = new SpannableString(topic);
 
             styled.setSpan(boldSpan, 0, styled.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
@@ -1628,8 +1638,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                             // Remove leading/trailing newlines or spaces
                             content = content.replaceAll("^[\\s\\r\\n\\t]+|[\\s\\r\\n\\t]+$", "");
                             
-                            if (content.length() > 18) {
-                                return content.substring(0, 18) + "...";
+                            if (content.length() > 35) {
+                                return content.substring(0, 35) + "...";
                             }
                             return content;
                         }

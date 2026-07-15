@@ -57,8 +57,8 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
                             content = content.replaceAll("(?i)Antigravity", "");
                             content = content.trim();
                             content = content.replaceAll("^[\\s\\r\\n\\t]+|[\\s\\r\\n\\t]+$", "");
-                            if (content.length() > 18) {
-                                return content.substring(0, 18) + "...";
+                            if (content.length() > 35) {
+                                return content.substring(0, 35) + "...";
                             }
                             return content;
                         }
@@ -119,7 +119,7 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
             }
         }
         
-        return "🟢 [" + (position + 1) + "] " + cleanTitle;
+        return "[" + (position + 1) + "] " + cleanTitle;
     }
 
     @NonNull
