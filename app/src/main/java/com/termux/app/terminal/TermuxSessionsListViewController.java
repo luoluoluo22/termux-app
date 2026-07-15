@@ -26,6 +26,7 @@ import com.termux.shared.theme.ThemeUtils;
 import com.termux.terminal.TerminalSession;
 
 import java.util.List;
+import java.io.File;
 
 public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession> implements AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
@@ -40,6 +41,87 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
     }
 
     @SuppressLint("SetTextI18n")
+    private String extractTopicFromTranscript(File transcriptFile) {
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(transcriptFile))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("\"type\":\"USER_INPUT\"")) {
+                    org.json.JSONObject obj = new org.json.JSONObject(line);
+                    if ("USER_INPUT".equals(obj.optString("type"))) {
+                        String content = obj.optString("content");
+                        if (content != null) {
+                            content = content.trim();
+                            content = content.replaceAll("<[^>]+>", "");
+                            content = content.replaceAll("(?i)Antigravity-cli", "");
+                            content = content.replaceAll("(?i)Antigravity cli", "");
+                            content = content.replaceAll("(?i)Antigravity", "");
+                            content = content.trim();
+                            content = content.replaceAll("^[\\s\\r\\n\\t]+|[\\s\\r\\n\\t]+$", "");
+                            if (content.length() > 18) {
+                                return content.substring(0, 18) + "...";
+                            }
+                            return content;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        return null;
+    }
+
+    private String getDynamicSessionTitle(TerminalSession sessionAtRow, int position) {
+        String name = sessionAtRow.mSessionName;
+        String sessionTitle = sessionAtRow.getTitle();
+        
+        String uuid = null;
+        com.termux.shared.termux.shell.command.runner.terminal.TermuxSession ts = null;
+        try {
+            com.termux.app.TermuxService service = mActivity.getTermuxService();
+            if (service != null) {
+                ts = service.getTermuxSessionForTerminalSession(sessionAtRow);
+                if (ts != null) {
+                    String[] args = ts.getExecutionCommand().arguments;
+                    if (args != null) {
+                        for (String arg : args) {
+                            if (arg != null && arg.startsWith("--conversation=")) {
+                                uuid = arg.substring("--conversation=".length());
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+
+        String cleanTitle = null;
+        if (uuid != null) {
+            String dirPath = "/data/data/com.termux/files/usr/var/lib/proot-distro/containers/debian/rootfs/root/.gemini/antigravity-cli/brain/" + uuid;
+            File customTitleFile = new File(dirPath, "custom_title.txt");
+            if (customTitleFile.exists()) {
+                try (java.io.BufferedReader r = new java.io.BufferedReader(new java.io.FileReader(customTitleFile))) {
+                    cleanTitle = r.readLine();
+                } catch (Exception ignored) {}
+            }
+            if (cleanTitle == null || cleanTitle.isEmpty()) {
+                File transcriptFile = new File(dirPath, ".system_generated/logs/transcript.jsonl");
+                if (transcriptFile.exists()) {
+                    cleanTitle = extractTopicFromTranscript(transcriptFile);
+                }
+            }
+        }
+
+        if (cleanTitle == null || cleanTitle.isEmpty()) {
+            String sessionNamePart = (TextUtils.isEmpty(name) ? "" : name);
+            String sessionTitlePart = (TextUtils.isEmpty(sessionTitle) ? "" : ((sessionNamePart.isEmpty() ? "" : "\n") + sessionTitle));
+            cleanTitle = sessionNamePart + sessionTitlePart;
+            if (cleanTitle.isEmpty()) {
+                cleanTitle = "会话";
+            }
+        }
+        
+        return "🟢 [" + (position + 1) + "] " + cleanTitle;
+    }
+
     @NonNull
     @Override
     public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -63,17 +145,10 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
             ContextCompat.getDrawable(mActivity, R.drawable.session_background_black_selected)
         );
 
-        String name = sessionAtRow.mSessionName;
-        String sessionTitle = sessionAtRow.getTitle();
-
-        String numberPart = "[" + (position + 1) + "] ";
-        String sessionNamePart = (TextUtils.isEmpty(name) ? "" : name);
-        String sessionTitlePart = (TextUtils.isEmpty(sessionTitle) ? "" : ((sessionNamePart.isEmpty() ? "" : "\n") + sessionTitle));
-
-        String fullSessionTitle = numberPart + sessionNamePart + sessionTitlePart;
+        String fullSessionTitle = getDynamicSessionTitle(sessionAtRow, position);
         SpannableString fullSessionTitleStyled = new SpannableString(fullSessionTitle);
-        fullSessionTitleStyled.setSpan(boldSpan, 0, numberPart.length() + sessionNamePart.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        fullSessionTitleStyled.setSpan(italicSpan, numberPart.length() + sessionNamePart.length(), fullSessionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        // Styled without italic style (use normal style)
+        fullSessionTitleStyled.setSpan(boldSpan, 0, fullSessionTitle.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         sessionTitleView.setText(fullSessionTitleStyled);
 

@@ -1240,15 +1240,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
 
 
-            String prefix = "💬 ";
+            String prefix = "🕒 ";
 
             String topic = item.topic;
 
             SpannableString styled = new SpannableString(prefix + topic);
 
-            styled.setSpan(boldSpan, 0, prefix.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-            styled.setSpan(italicSpan, prefix.length(), styled.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            styled.setSpan(boldSpan, 0, styled.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
 
 

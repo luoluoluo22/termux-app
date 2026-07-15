@@ -105,7 +105,7 @@
                     android:paddingLeft="16dp"
                     android:paddingTop="8dp"
                     android:paddingBottom="4dp"
-                    android:text="活动会话"
+                    android:text="活动对话"
                     android:textSize="12sp"
                     android:textColor="?attr/termuxActivityDrawerImageTint"
                     android:textStyle="bold" />
