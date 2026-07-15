@@ -1638,8 +1638,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                             // Remove leading/trailing newlines or spaces
                             content = content.replaceAll("^[\\s\\r\\n\\t]+|[\\s\\r\\n\\t]+$", "");
                             
-                            if (content.length() > 35) {
-                                return content.substring(0, 35) + "...";
+                            if (content.length() > 100) {
+                                return content.substring(0, 100);
                             }
                             return content;
                         }
