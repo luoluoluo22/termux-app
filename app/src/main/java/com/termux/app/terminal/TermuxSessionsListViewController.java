@@ -93,6 +93,33 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
             }
         } catch (Exception ignored) {}
 
+        if (uuid == null && sessionTitle != null && sessionTitle.startsWith("agy_conversation:")) {
+            uuid = sessionTitle.substring("agy_conversation:".length()).trim();
+        }
+
+        if (uuid == null && sessionTitle != null && (sessionTitle.contains("Antigravity") || sessionTitle.contains("agy"))) {
+            String AGY_BRAIN_DIR = "/data/data/com.termux/files/usr/var/lib/proot-distro/containers/debian/rootfs/root/.gemini/antigravity-cli/brain";
+            File brainDir = new File(AGY_BRAIN_DIR);
+            if (brainDir.exists() && brainDir.isDirectory()) {
+                File[] files = brainDir.listFiles();
+                if (files != null) {
+                    File newestDir = null;
+                    long newestTime = 0;
+                    for (File dir : files) {
+                        if (dir.isDirectory() && dir.getName().length() == 36) {
+                            if (dir.lastModified() > newestTime) {
+                                newestTime = dir.lastModified();
+                                newestDir = dir;
+                            }
+                        }
+                    }
+                    if (newestDir != null) {
+                        uuid = newestDir.getName();
+                    }
+                }
+            }
+        }
+
         String cleanTitle = null;
         if (uuid != null) {
             String dirPath = "/data/data/com.termux/files/usr/var/lib/proot-distro/containers/debian/rootfs/root/.gemini/antigravity-cli/brain/" + uuid;
