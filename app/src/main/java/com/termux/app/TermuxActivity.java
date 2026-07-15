@@ -1848,13 +1848,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         View newSessionButton = findViewById(R.id.new_session_button);
 
-        newSessionButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null));
+        newSessionButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null, false));
 
         newSessionButton.setOnLongClickListener(v -> {
 
             TextInputDialogUtils.textInput(TermuxActivity.this, R.string.title_create_named_session, null,
 
-                R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text),
+                R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text, false),
 
                 R.string.action_new_session_failsafe, text -> mTermuxTerminalSessionActivityClient.addNewSession(true, text),
 
@@ -1863,6 +1863,18 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             return true;
 
         });
+
+        View newTerminalButton = findViewById(R.id.new_terminal_session_button);
+        if (newTerminalButton != null) {
+            newTerminalButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null, true));
+            newTerminalButton.setOnLongClickListener(v -> {
+                TextInputDialogUtils.textInput(TermuxActivity.this, R.string.title_create_named_session, null,
+                    R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text, true),
+                    R.string.action_new_session_failsafe, text -> mTermuxTerminalSessionActivityClient.addNewSession(true, text),
+                    -1, null, null);
+                return true;
+            });
+        }
 
     }
 

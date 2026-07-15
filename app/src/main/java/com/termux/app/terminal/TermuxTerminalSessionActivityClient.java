@@ -362,6 +362,10 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
     }
 
     public void addNewSession(boolean isFailSafe, String sessionName) {
+        addNewSession(isFailSafe, sessionName, false);
+    }
+
+    public void addNewSession(boolean isFailSafe, String sessionName, boolean isTerminalOnly) {
         TermuxService service = mActivity.getTermuxService();
         if (service == null) return;
 
@@ -382,7 +386,8 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
             if (!isFailSafe) {
                 String shPath = com.termux.shared.termux.TermuxConstants.TERMUX_BIN_PREFIX_DIR_PATH + "/sh";
                 String loginPath = com.termux.shared.termux.TermuxConstants.TERMUX_BIN_PREFIX_DIR_PATH + "/login";
-                String[] args = new String[]{"-c", "export NEW_CHAT=1; exec " + loginPath};
+                String envVar = isTerminalOnly ? "export ONLY_TERM=1;" : "export NEW_CHAT=1;";
+                String[] args = new String[]{"-c", envVar + " exec " + loginPath};
                 newTermuxSession = service.createTermuxSession(shPath, args, null, workingDirectory, isFailSafe, sessionName);
             } else {
                 newTermuxSession = service.createTermuxSession(null, null, null, workingDirectory, isFailSafe, sessionName);

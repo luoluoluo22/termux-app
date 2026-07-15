@@ -81,6 +81,14 @@
                         android:layout_height="1dp"
                         android:layout_weight="1" />
                     <ImageButton
+                        android:id="@+id/new_terminal_session_button"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:src="@drawable/ic_terminal"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="新建终端"
+                        app:tint="?attr/termuxActivityDrawerImageTint" />
+                    <ImageButton
                         android:id="@+id/new_session_button"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
