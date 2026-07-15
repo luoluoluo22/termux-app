@@ -957,6 +957,8 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
         // Update the {@link TerminalSession} and {@link TerminalEmulator} clients.
 
         mTermuxService.setTermuxTerminalSessionClient(mTermuxTerminalSessionActivityClient);
+        
+        handleShareIntent(intent);
 
     }
 
@@ -2884,6 +2886,54 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                 Logger.logStackTraceWithMessage(LOG_TAG, "Failed to write GitHub configuration", e);
             }
         }).start();
+    }
+
+    private String mPendingSharedText = null;
+    private android.net.Uri mPendingSharedUri = null;
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleShareIntent(intent);
+    }
+
+    private void handleShareIntent(Intent intent) {
+        if (intent == null) return;
+        String action = intent.getAction();
+        String type = intent.getType();
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if ("text/plain".equals(type) || type.startsWith("text/")) {
+                String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+                if (sharedText != null) {
+                    mPendingSharedText = sharedText;
+                    processPendingShare();
+                }
+            } else {
+                android.net.Uri uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                if (uri != null) {
+                    mPendingSharedUri = uri;
+                    processPendingShare();
+                }
+            }
+        }
+    }
+
+    public void processPendingShare() {
+        TerminalView terminalView = getTerminalView();
+        if (terminalView == null) return;
+        com.termux.terminal.TerminalSession session = terminalView.getCurrentSession();
+        if (session == null) return;
+
+        if (mPendingSharedText != null) {
+            String text = mPendingSharedText;
+            mPendingSharedText = null;
+            session.write(text);
+        } else if (mPendingSharedUri != null) {
+            android.net.Uri uri = mPendingSharedUri;
+            mPendingSharedUri = null;
+            handleSelectedFile(uri);
+        }
     }
 
 }
