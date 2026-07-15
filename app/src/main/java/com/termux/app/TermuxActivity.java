@@ -2803,6 +2803,25 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                     }
                 }
 
+                // Also copy to Debian container's /root directory if running
+                java.io.File debianRootDir = new java.io.File("/data/data/com.termux/files/usr/var/lib/proot-distro/containers/debian/rootfs/root");
+                if (!debianRootDir.exists()) {
+                    debianRootDir = new java.io.File("/data/user/0/com.termux/files/usr/var/lib/proot-distro/containers/debian/rootfs/root");
+                }
+                if (debianRootDir.exists() && debianRootDir.isDirectory()) {
+                    java.io.File debianDestFile = new java.io.File(debianRootDir, fileName);
+                    try (java.io.InputStream in = getContentResolver().openInputStream(uri);
+                         java.io.FileOutputStream out = new java.io.FileOutputStream(debianDestFile)) {
+                        byte[] buffer = new byte[8192];
+                        int read;
+                        while ((read = in.read(buffer)) != -1) {
+                            out.write(buffer, 0, read);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 final String insertedPath = "~/" + fileName;
                 runOnUiThread(() -> {
                     TerminalView terminalView = getTerminalView();
