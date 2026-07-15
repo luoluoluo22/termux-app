@@ -125,12 +125,13 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
     public void onTitleChanged(@NonNull TerminalSession updatedSession) {
         if (!mActivity.isVisible()) return;
 
-        if (updatedSession != mActivity.getCurrentSession()) {
-            // Only show toast for other sessions than the current one, since the user
-            // probably consciously caused the title change to change in the current session
-            // and don't want an annoying toast for that.
-            mActivity.showToast(toToastTitle(updatedSession), true);
-        }
+        // Title change toast disabled per user request
+        // if (updatedSession != mActivity.getCurrentSession()) {
+        //     // Only show toast for other sessions than the current one, since the user
+        //     // probably consciously caused the title change to change in the current session
+        //     // and don't want an annoying toast for that.
+        //     mActivity.showToast(toToastTitle(updatedSession), true);
+        // }
 
         termuxSessionListNotifyUpdated();
     }
@@ -307,10 +308,11 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
     void notifyOfSessionChange() {
         if (!mActivity.isVisible()) return;
 
-        if (!mActivity.getProperties().areTerminalSessionChangeToastsDisabled()) {
-            TerminalSession session = mActivity.getCurrentSession();
-            mActivity.showToast(toToastTitle(session), false);
-        }
+        // Session change toast disabled per user request
+        // if (!mActivity.getProperties().areTerminalSessionChangeToastsDisabled()) {
+        //     TerminalSession session = mActivity.getCurrentSession();
+        //     mActivity.showToast(toToastTitle(session), false);
+        // }
     }
 
     public void switchToSession(boolean forward) {
