@@ -1232,15 +1232,11 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
 
 
-            if (shouldEnableDarkTheme) {
+            titleView.setBackground(
 
-                titleView.setBackground(
+                ContextCompat.getDrawable(TermuxActivity.this, R.drawable.session_background_black_selected)
 
-                    ContextCompat.getDrawable(TermuxActivity.this, R.drawable.session_background_black_selected)
-
-                );
-
-            }
+            );
 
 
 
@@ -1260,7 +1256,7 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
             titleView.setPaintFlags(titleView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 
-            titleView.setTextColor(shouldEnableDarkTheme ? Color.WHITE : Color.BLACK);
+            titleView.setTextColor(Color.WHITE);
 
 
 
@@ -1595,17 +1591,21 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
                         String content = obj.optString("content");
 
                         if (content != null) {
-
                             content = content.trim();
-
+                            // Clean up XML tags like <user_request>, </user_request>, <USER_REQUEST>, etc.
+                            content = content.replaceAll("<[^>]+>", "");
+                            // Clean up common Antigravity prefixes
+                            content = content.replaceAll("(?i)Antigravity-cli", "");
+                            content = content.replaceAll("(?i)Antigravity cli", "");
+                            content = content.replaceAll("(?i)Antigravity", "");
+                            content = content.trim();
+                            // Remove leading/trailing newlines or spaces
+                            content = content.replaceAll("^[\\s\\r\\n\\t]+|[\\s\\r\\n\\t]+$", "");
+                            
                             if (content.length() > 18) {
-
                                 return content.substring(0, 18) + "...";
-
                             }
-
                             return content;
-
                         }
 
                     }

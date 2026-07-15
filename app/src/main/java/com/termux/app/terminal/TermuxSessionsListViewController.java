@@ -59,11 +59,9 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
 
         boolean shouldEnableDarkTheme = ThemeUtils.shouldEnableDarkTheme(mActivity, NightMode.getAppNightMode().getName());
 
-        if (shouldEnableDarkTheme) {
-            sessionTitleView.setBackground(
-                ContextCompat.getDrawable(mActivity, R.drawable.session_background_black_selected)
-            );
-        }
+        sessionTitleView.setBackground(
+            ContextCompat.getDrawable(mActivity, R.drawable.session_background_black_selected)
+        );
 
         String name = sessionAtRow.mSessionName;
         String sessionTitle = sessionAtRow.getTitle();
@@ -86,7 +84,7 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
         } else {
             sessionTitleView.setPaintFlags(sessionTitleView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
-        int defaultColor = shouldEnableDarkTheme ? Color.WHITE : Color.BLACK;
+        int defaultColor = Color.WHITE;
         int color = sessionRunning || sessionAtRow.getExitStatus() == 0 ? defaultColor : Color.RED;
         sessionTitleView.setTextColor(color);
         return sessionRowView;
@@ -102,7 +100,24 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         final TermuxSession selectedSession = getItem(position);
-        mActivity.getTermuxTerminalSessionClient().renameSession(selectedSession.getTerminalSession());
+        new android.app.AlertDialog.Builder(mActivity)
+            .setTitle("会话操作")
+            .setItems(new CharSequence[]{"重命名", "关闭并删除会话"}, (dialog, which) -> {
+                if (which == 0) {
+                    mActivity.getTermuxTerminalSessionClient().renameSession(selectedSession.getTerminalSession());
+                } else if (which == 1) {
+                    new android.app.AlertDialog.Builder(mActivity)
+                        .setTitle("确认关闭")
+                        .setMessage("确定要关闭并删除当前会话吗？")
+                        .setPositiveButton(android.R.string.yes, (dialog2, which2) -> {
+                            selectedSession.finish();
+                            mActivity.getTermuxTerminalSessionClient().removeFinishedSession(selectedSession.getTerminalSession());
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .show();
+                }
+            })
+            .show();
         return true;
     }
 
