@@ -364,10 +364,14 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
     }
 
     public void addNewSession(boolean isFailSafe, String sessionName) {
-        addNewSession(isFailSafe, sessionName, false, false);
+        addNewSession(isFailSafe, sessionName, false, false, false);
     }
 
     public void addNewSession(boolean isFailSafe, String sessionName, boolean isTerminalOnly, boolean isNewChat) {
+        addNewSession(isFailSafe, sessionName, isTerminalOnly, isNewChat, false);
+    }
+
+    public void addNewSession(boolean isFailSafe, String sessionName, boolean isTerminalOnly, boolean isNewChat, boolean isRemoteSSH) {
         TermuxService service = mActivity.getTermuxService();
         if (service == null) return;
 
@@ -393,6 +397,8 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
                     envVar = "export ONLY_TERM=1;";
                 } else if (isNewChat) {
                     envVar = "export NEW_CHAT=1;";
+                } else if (isRemoteSSH) {
+                    envVar = "export REMOTE_SSH=1;";
                 }
                 String[] args;
                 if (!envVar.isEmpty()) {

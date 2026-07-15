@@ -1884,6 +1884,18 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
             });
         }
 
+        View newRemoteButton = findViewById(R.id.new_remote_session_button);
+        if (newRemoteButton != null) {
+            newRemoteButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null, false, false, true));
+            newRemoteButton.setOnLongClickListener(v -> {
+                TextInputDialogUtils.textInput(TermuxActivity.this, R.string.title_create_named_session, null,
+                    R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text, false, false, true),
+                    R.string.action_new_session_failsafe, text -> mTermuxTerminalSessionActivityClient.addNewSession(true, text),
+                    -1, null, null);
+                return true;
+            });
+        }
+
     }
 
 
