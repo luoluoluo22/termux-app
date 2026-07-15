@@ -362,10 +362,10 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
     }
 
     public void addNewSession(boolean isFailSafe, String sessionName) {
-        addNewSession(isFailSafe, sessionName, false);
+        addNewSession(isFailSafe, sessionName, false, false);
     }
 
-    public void addNewSession(boolean isFailSafe, String sessionName, boolean isTerminalOnly) {
+    public void addNewSession(boolean isFailSafe, String sessionName, boolean isTerminalOnly, boolean isNewChat) {
         TermuxService service = mActivity.getTermuxService();
         if (service == null) return;
 
@@ -386,9 +386,19 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
             if (!isFailSafe) {
                 String shPath = com.termux.shared.termux.TermuxConstants.TERMUX_BIN_PREFIX_DIR_PATH + "/sh";
                 String loginPath = com.termux.shared.termux.TermuxConstants.TERMUX_BIN_PREFIX_DIR_PATH + "/login";
-                String envVar = isTerminalOnly ? "export ONLY_TERM=1;" : "export NEW_CHAT=1;";
-                String[] args = new String[]{"-c", envVar + " exec " + loginPath};
-                newTermuxSession = service.createTermuxSession(shPath, args, null, workingDirectory, isFailSafe, sessionName);
+                String envVar = "";
+                if (isTerminalOnly) {
+                    envVar = "export ONLY_TERM=1;";
+                } else if (isNewChat) {
+                    envVar = "export NEW_CHAT=1;";
+                }
+                String[] args;
+                if (!envVar.isEmpty()) {
+                    args = new String[]{"-c", envVar + " exec " + loginPath};
+                    newTermuxSession = service.createTermuxSession(shPath, args, null, workingDirectory, isFailSafe, sessionName);
+                } else {
+                    newTermuxSession = service.createTermuxSession(null, null, null, workingDirectory, isFailSafe, sessionName);
+                }
             } else {
                 newTermuxSession = service.createTermuxSession(null, null, null, workingDirectory, isFailSafe, sessionName);
             }

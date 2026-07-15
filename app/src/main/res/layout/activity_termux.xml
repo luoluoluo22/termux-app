@@ -117,6 +117,8 @@
                     android:layout_gravity="top"
                     android:layout_weight="1"
                     android:choiceMode="singleChoice"
+                    android:divider="#20FFFFFF"
+                    android:dividerHeight="0.5dp"
                     android:longClickable="true" />
 
                 <View
@@ -144,8 +146,8 @@
                     android:layout_height="0dp"
                     android:layout_weight="1.2"
                     android:choiceMode="singleChoice"
-                    android:divider="@android:color/transparent"
-                    android:dividerHeight="0dp" />
+                    android:divider="#20FFFFFF"
+                    android:dividerHeight="0.5dp" />
 
                 <RelativeLayout
                     android:layout_width="match_parent"

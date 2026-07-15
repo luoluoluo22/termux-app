@@ -1848,13 +1848,13 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         View newSessionButton = findViewById(R.id.new_session_button);
 
-        newSessionButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null, false));
+        newSessionButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null, false, true));
 
         newSessionButton.setOnLongClickListener(v -> {
 
             TextInputDialogUtils.textInput(TermuxActivity.this, R.string.title_create_named_session, null,
 
-                R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text, false),
+                R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text, false, true),
 
                 R.string.action_new_session_failsafe, text -> mTermuxTerminalSessionActivityClient.addNewSession(true, text),
 
@@ -1866,10 +1866,10 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         View newTerminalButton = findViewById(R.id.new_terminal_session_button);
         if (newTerminalButton != null) {
-            newTerminalButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null, true));
+            newTerminalButton.setOnClickListener(v -> mTermuxTerminalSessionActivityClient.addNewSession(false, null, true, false));
             newTerminalButton.setOnLongClickListener(v -> {
                 TextInputDialogUtils.textInput(TermuxActivity.this, R.string.title_create_named_session, null,
-                    R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text, true),
+                    R.string.action_create_named_session_confirm, text -> mTermuxTerminalSessionActivityClient.addNewSession(false, text, true, false),
                     R.string.action_new_session_failsafe, text -> mTermuxTerminalSessionActivityClient.addNewSession(true, text),
                     -1, null, null);
                 return true;
