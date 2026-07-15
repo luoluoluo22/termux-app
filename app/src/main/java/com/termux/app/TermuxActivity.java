@@ -1342,12 +1342,40 @@ public final class TermuxActivity extends AppCompatActivity implements ServiceCo
 
         aiListView.setAdapter(adapter);
 
+        // Find which item is active and check it
+        int activePosition = -1;
+        TerminalSession currentSession = getCurrentSession();
+        if (currentSession != null) {
+            TermuxService service = getTermuxService();
+            if (service != null) {
+                com.termux.shared.termux.shell.command.runner.terminal.TermuxSession termuxSession = 
+                    service.getTermuxSessionForTerminalSession(currentSession);
+                if (termuxSession != null) {
+                    String[] args = termuxSession.getExecutionCommand().arguments;
+                    if (args != null) {
+                        for (String arg : args) {
+                            if (arg != null && arg.startsWith("--conversation=")) {
+                                String uuid = arg.substring("--conversation=".length());
+                                for (int i = 0; i < items.size(); i++) {
+                                    if (items.get(i).uuid.equals(uuid)) {
+                                        activePosition = i;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (activePosition != -1) {
+            aiListView.setItemChecked(activePosition, true);
+        }
+
         aiListView.setOnItemClickListener((parent, view, position, id) -> {
-
+            aiListView.setItemChecked(position, true);
             AIChatItem clickedItem = items.get(position);
-
             startAIChatSession(clickedItem.uuid, clickedItem.topic);
-
         });
 
         aiListView.setOnItemLongClickListener((parent, view, position, id) -> {

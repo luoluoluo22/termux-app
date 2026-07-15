@@ -378,7 +378,15 @@ public class TermuxTerminalSessionActivityClient extends TermuxTerminalSessionCl
                 workingDirectory = currentSession.getCwd();
             }
 
-            TermuxSession newTermuxSession = service.createTermuxSession(null, null, null, workingDirectory, isFailSafe, sessionName);
+            com.termux.shared.termux.shell.command.runner.terminal.TermuxSession newTermuxSession;
+            if (!isFailSafe) {
+                String shPath = com.termux.shared.termux.TermuxConstants.TERMUX_BIN_PREFIX_DIR_PATH + "/sh";
+                String loginPath = com.termux.shared.termux.TermuxConstants.TERMUX_BIN_PREFIX_DIR_PATH + "/login";
+                String[] args = new String[]{"-c", "export NEW_CHAT=1; exec " + loginPath};
+                newTermuxSession = service.createTermuxSession(shPath, args, null, workingDirectory, isFailSafe, sessionName);
+            } else {
+                newTermuxSession = service.createTermuxSession(null, null, null, workingDirectory, isFailSafe, sessionName);
+            }
             if (newTermuxSession == null) return;
 
             TerminalSession newTerminalSession = newTermuxSession.getTerminalSession();

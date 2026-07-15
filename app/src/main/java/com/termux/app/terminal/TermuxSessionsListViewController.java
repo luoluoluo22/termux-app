@@ -110,7 +110,7 @@ public class TermuxSessionsListViewController extends ArrayAdapter<TermuxSession
                         .setTitle("确认关闭")
                         .setMessage("确定要关闭并删除当前会话吗？")
                         .setPositiveButton(android.R.string.yes, (dialog2, which2) -> {
-                            selectedSession.finish();
+                            selectedSession.getTerminalSession().finishIfRunning();
                             mActivity.getTermuxTerminalSessionClient().removeFinishedSession(selectedSession.getTerminalSession());
                         })
                         .setNegativeButton(android.R.string.no, null)
